@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dylan Lane · Candidate Diagnostics</title>
+<meta name="description" content="Dylan Lane — Master Automotive Technician (EV and ICE), Technical Trainer, Applied-AI Builder. Full-system scan: 0 faults found.">
+<style>
+  :root {
+    --bg: #0a0e12;
+    --panel: #10161d;
+    --panel2: #0d1319;
+    --line: #1f2a35;
+    --text: #c9d6e2;
+    --dim: #6b7d8f;
+    --amber: #ffb02e;
+    --green: #2ee6a8;
+    --red: #ff5c5c;
+    --cyan: #4fd2ff;
+    --mono: "JetBrains Mono", "Cascadia Code", "SF Mono", Consolas, "Liberation Mono", monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--mono); font-size: 15px; line-height: 1.6;
+    background-image: radial-gradient(ellipse 80% 50% at 50% -10%, #14202c 0%, transparent 60%);
+  }
+  ::selection { background: var(--amber); color: #000; }
+
+  /* ---------- boot overlay ---------- */
+  #boot {
+    position: fixed; inset: 0; z-index: 100; background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity .5s ease; cursor: pointer;
+  }
+  #boot.done { opacity: 0; pointer-events: none; }
+  #bootlog { width: min(560px, 88vw); font-size: 14px; color: var(--green); }
+  #bootlog .line { min-height: 1.6em; white-space: pre-wrap; }
+  #bootlog .dim { color: var(--dim); }
+  #bootlog .amber { color: var(--amber); }
+  #boot .skip { position: fixed; bottom: 24px; left: 0; right: 0; text-align: center; color: var(--dim); font-size: 12px; }
+  .cursor::after { content: "▊"; animation: blink 1s steps(1) infinite; color: var(--green); }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ---------- layout ---------- */
+  .wrap { max-width: 900px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  header.mast { padding-top: 28px; }
+  .toolbar {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; color: var(--dim); border: 1px solid var(--line);
+    border-radius: 8px; padding: 8px 14px; background: var(--panel2);
+    flex-wrap: wrap; gap: 6px;
+  }
+  .toolbar .dot { color: var(--green); }
+  h1 {
+    font-size: clamp(34px, 7vw, 58px); letter-spacing: .04em; color: #fff;
+    margin: 28px 0 4px; font-weight: 700;
+  }
+  h1 .accent { color: var(--amber); }
+  .tagline { color: var(--cyan); font-size: clamp(13px, 2.4vw, 16px); }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 10px; }
+  .pill {
+    font-size: 11.5px; letter-spacing: .08em; padding: 4px 10px;
+    border: 1px solid #1d4a3c; border-radius: 999px;
+    color: var(--green); background: #0d1f1a;
+  }
+  .pill.ok { color: var(--green); border-color: #1d4a3c; background: #0d1f1a; }
+  .pill.hv { color: var(--green); border-color: #1d4a3c; background: #0d1f1a; }
+  .contact { margin-top: 14px; font-size: 13.5px; display: flex; flex-wrap: wrap; gap: 8px 18px; }
+  a { color: var(--cyan); text-decoration: none; border-bottom: 1px dotted #2a5e73; }
+  a:hover { color: #fff; border-bottom-color: var(--amber); }
+
+  /* ---------- live data ticker ---------- */
+  .ticker {
+    margin: 30px 0 8px; display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;
+  }
+  .stat {
+    border: 1px solid var(--line); border-radius: 8px; background: var(--panel);
+    padding: 10px 12px; text-align: center;
+  }
+  .stat b { display: block; color: var(--amber); font-size: 20px; }
+  .stat span { font-size: 10.5px; color: var(--dim); letter-spacing: .08em; text-transform: uppercase; }
+
+  /* ---------- waveform divider ---------- */
+  .wave { margin: 26px 0 6px; overflow: hidden; }
+  .wave svg { display: block; width: 100%; height: 34px; }
+  .wave path {
+    fill: none; stroke: var(--green); stroke-width: 2; opacity: .55;
+    stroke-dasharray: 6 4; animation: scan 22s linear infinite;
+  }
+  @keyframes scan { to { stroke-dashoffset: -1000; } }
+  .wavelabel { text-align: right; font-size: 10px; color: var(--dim); letter-spacing: .12em; margin-top: 3px; }
+  .wavelabel .decode { cursor: help; border-bottom: 1px dotted var(--dim); }
+  .wavelabel .decode.solved { color: var(--green); border-bottom: none; }
+
+  /* ---------- modules ---------- */
+  section.module {
+    border: 1px solid var(--line); border-radius: 10px; background: var(--panel);
+    margin-top: 34px; overflow: hidden;
+  }
+  .modhead {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+    padding: 12px 18px; background: var(--panel2); border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .modhead h2 { font-size: 15px; letter-spacing: .14em; color: var(--amber); font-weight: 700; }
+  .modhead .status { font-size: 11.5px; color: var(--green); letter-spacing: .1em; }
+  .modbody { padding: 20px 18px; }
+
+  .summary { font-size: 15px; color: var(--text); }
+  .summary .hl { color: var(--green); }
+
+  /* ---------- experience ---------- */
+  .job { border-left: 2px solid var(--line); margin: 0 0 26px 4px; padding-left: 18px; position: relative; }
+  .job:last-child { margin-bottom: 4px; }
+  .job::before {
+    content: ""; position: absolute; left: -6px; top: 6px; width: 10px; height: 10px;
+    border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green);
+  }
+  .job.hv::before { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .jobhead { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .jobhead h3 { font-size: 15.5px; color: #fff; }
+  .jobhead h3 small { color: var(--dim); font-weight: 400; }
+  .dates { color: var(--dim); font-size: 12.5px; white-space: nowrap; padding-top: 2px; }
+  .org { color: var(--cyan); font-size: 12.5px; margin: 2px 0 8px; }
+  ul.log { list-style: none; }
+  ul.log li { padding-left: 20px; position: relative; margin-bottom: 7px; font-size: 13.8px; }
+  ul.log li::before { content: ">"; position: absolute; left: 0; color: var(--green); }
+  .subrole { margin-top: 16px; }
+
+  /* ---------- projects ---------- */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    border: 1px solid var(--line); border-radius: 8px; background: var(--panel2);
+    padding: 16px; display: flex; flex-direction: column; gap: 8px;
+    transition: border-color .2s, transform .2s;
+  }
+  .card:hover { border-color: var(--amber); transform: translateY(-2px); }
+  .card h3 { font-size: 14.5px; color: var(--green); }
+  .card .tag { font-size: 10.5px; color: var(--dim); letter-spacing: .1em; text-transform: uppercase; }
+  .card p { font-size: 13px; color: var(--text); flex: 1; }
+  .card .foot { font-size: 12px; }
+  .card .priv { color: var(--dim); font-size: 12px; }
+
+  /* ---------- certs / firmware ---------- */
+  .kv { display: grid; grid-template-columns: 150px 1fr; gap: 8px 16px; font-size: 13.8px; }
+  @media (max-width: 600px) { .kv { grid-template-columns: 1fr; } .kv dt { margin-top: 8px; } }
+  .kv dt { color: var(--amber); letter-spacing: .06em; }
+  .kv dd { color: var(--text); }
+  .pass { color: var(--green); }
+
+  /* ---------- dtc easter egg + footer ---------- */
+  .dtc {
+    margin-top: 34px; border: 1px dashed #4a3a1d; border-radius: 10px;
+    padding: 14px 18px; font-size: 13px; color: var(--dim); background: #14110a;
+  }
+  .dtc b { color: var(--amber); }
+  footer { margin-top: 44px; text-align: center; color: var(--dim); font-size: 12.5px; }
+  footer .prompt { color: var(--green); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wave path { animation: none; }
+    .cursor::after { animation: none; }
+    #boot { display: none; }
+  }
+  @media print {
+    #boot, .wave, .dtc { display: none; }
+    body { background: #fff; color: #000; }
+  }
+</style>
+</head>
+<body>
+
+<div id="boot" title="Click to skip">
+  <div id="bootlog"></div>
+  <div class="skip">[ click anywhere to skip ]</div>
+</div>
+
+<div class="wrap">
+
+  <header class="mast">
+    <div class="toolbar">
+      <span>TOOLBOX // CANDIDATE DIAGNOSTICS v5.0</span>
+      <span><span class="dot">●</span> CONNECTED · VIN DYLAN-LANE-ATX</span>
+    </div>
+    <h1>DYLAN <span class="accent">LANE</span><span class="cursor"></span></h1>
+    <div class="pills">
+      <span class="pill hv">⚡ MASTER TECHNICIAN · EV + ICE</span>
+      <span class="pill">TECHNICAL TRAINER</span>
+      <span class="pill">APPLIED-AI BUILDER</span>
+      <span class="pill">PROBLEM SOLVER</span>
+      <span class="pill">LEADER</span>
+      <span class="pill">INNOVATOR</span>
+      <span class="pill">AUSTIN, TX</span>
+    </div>
+    <div class="contact">
+      <a href="https://github.com/chucks-lab">github.com/chucks-lab</a>
+      <a href="https://www.linkedin.com/in/dylan-lane-2063391b9">linkedin</a>
+      <a href="mailto:djlaneauto@icloud.com">djlaneauto@icloud.com</a>
+    </div>
+  </header>
+
+  <div class="ticker" aria-label="Live data">
+    <div class="stat"><b>10</b><span>years in industry</span></div>
+    <div class="stat"><b>20+</b><span>sites supported</span></div>
+    <div class="stat"><b>4</b><span>companies served</span></div>
+    <div class="stat"><b>&gt;1000</b><span>vehicles revived</span></div>
+    <div class="stat"><b>&gt;100</b><span>humans trained</span></div>
+    <div class="stat"><b>4</b><span>active AI projects</span></div>
+  </div>
+
+  <div class="wave">
+    <svg id="binwave" viewBox="0 0 900 34" preserveAspectRatio="none" role="img" aria-label="Square-wave trace encoding DYLAN LANE in binary ASCII">
+      <title>NRZ trace · 8-bit ASCII · decodes to: DYLAN LANE</title>
+      <path d="M0 28 L60 28 L60 6 L120 6 L120 28 L200 28 L200 6 L230 6 L230 28 L330 28 L330 6 L390 6 L390 28 L470 28 L470 6 L500 6 L500 28 L600 28 L600 6 L660 6 L660 28 L740 28 L740 6 L770 6 L770 28 L900 28"/>
+    </svg>
+    <div class="wavelabel">CH1 · 5 V/div · NRZ · 8-bit ASCII · <span class="decode">decode me</span></div>
+  </div>
+
+  <section class="module">
+    <div class="modhead"><h2>MODULE 01 · SYSTEM ID</h2><span class="status">READINESS: COMPLETE</span></div>
+    <div class="modbody summary">
+      Master automotive technician (EV and ICE) and technical trainer with a decade in vehicle diagnostics,
+      high-voltage systems, and skilled-trades pedagogy. Tesla alumni on <span class="hl">both sides of the business</span>:
+      field service and vehicle manufacturing. Builds applied AI that turns subject-matter expertise into working
+      leverage: MCP servers, Claude Code workflows, and agentic authoring pipelines that produce decks, docs,
+      VR simulations, and diagnostic tools training teams actually use.
+      Diagnostic mindset throughout: <span class="hl">reproduce, isolate, verify</span>.
+    </div>
+  </section>
+
+  <section class="module">
+    <div class="modhead"><h2>MODULE 02 · FREEZE FRAME · EXPERIENCE</h2><span class="status">HISTORY: STORED</span></div>
+    <div class="modbody">
+
+      <div class="job hv">
+        <div class="jobhead"><h3>Technical Trainer, SME: Vehicle Diagnostics and Repair</h3><span class="dates">Nov 2024 – Jun 2026</span></div>
+        <div class="org">TESLA · Vehicle Manufacturing · Austin, TX</div>
+        <ul class="log">
+          <li>Trained factory vehicle technicians in diagnostics and repair after moving from Tesla's field-service organization to the manufacturing side of the business</li>
+          <li>Trained industrial technicians on electrical power transmission and generation</li>
+          <li>Designed curricula and certification exams for Tesla factory technicians, including pre-production and pilot builds, then certified technicians against them</li>
+          <li>Developed training material and training systems for the factory with frontier AI tools (Cursor, Claude Code, Grok), several adopted while still in early beta</li>
+        </ul>
+      </div>
+
+      <div class="job">
+        <div class="jobhead"><h3>Self-Employed <small>· Freelance Training-Content Development</small></h3><span class="dates">Aug 2023 – Nov 2024</span></div>
+        <ul class="log">
+          <li>Tested a client's electrical-systems training aid for functionality and durability</li>
+          <li>Wrote the training workbook accompanying the new electrical training aid</li>
+          <li>Demonstrated the product to current and prospective buyers at a state conference on the client's behalf</li>
+        </ul>
+      </div>
+
+      <div class="job hv">
+        <div class="jobhead"><h3>Tesla · Vehicle Service</h3><span class="dates">Jan 2020 – Aug 2023</span></div>
+
+        <div class="subrole">
+          <div class="jobhead"><h3>Technical Trainer / Supervisor, START Program</h3><span class="dates">Aug 2021 – Aug 2023</span></div>
+          <div class="org">Waco, TX</div>
+          <ul class="log">
+            <li>Interviewed and personally selected all candidates for the program</li>
+            <li>Trained, supervised, and certified START technician interns into Tesla service roles over 16-week cohorts at a community-college host campus (<a href="https://www.tesla.com/careers/tesla-start">tesla-start</a>)</li>
+            <li>Delivered instructor-led certification training across technician competencies and co-authored certification courses and exams within the Tesla service curricula</li>
+            <li>Supported service and training centers across multiple states and contributed to factory, engineering, instructional-design, and field-service projects, including hands-on work with the first 20 Model Ys produced and delivered at Gigafactory Texas</li>
+          </ul>
+        </div>
+
+        <div class="subrole">
+          <div class="jobhead"><h3>Lead Service Technician</h3><span class="dates">Apr 2020 – Jul 2021</span></div>
+          <div class="org">Sarasota, FL (regional)</div>
+          <ul class="log">
+            <li>Resolved regional-level problems under the service, sales, and delivery umbrella</li>
+            <li>Provided regional diagnostic, WIP, backlog, and training support to 20+ Tesla locations across North America</li>
+            <li>Diagnosed complex vehicle faults alongside Field Technical Specialists and engineering to isolate components not operating as designed and identify trends</li>
+            <li>Supported the opening of three Florida service centers while holding brand and customer-experience standards</li>
+          </ul>
+        </div>
+
+        <div class="subrole">
+          <div class="jobhead"><h3>START Technician (Internship)</h3><span class="dates">Jan 2020 – Mar 2020</span></div>
+          <div class="org">Long Island, NY</div>
+          <ul class="log">
+            <li>Graduated from the Tesla START internship and returned the following year to run the program as trainer and supervisor</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="job">
+        <div class="jobhead"><h3>Technician Expert</h3><span class="dates">Jun 2017 – Nov 2019</span></div>
+        <div class="org">AUDI · Gainesville, FL</div>
+        <ul class="log">
+          <li>Diagnosed heavy electrical, engine-mechanical, and drivability faults across the Audi line; performed medium-to-heavy repairs and wrote repair estimates</li>
+          <li>Completed Audi factory training in engine mechanical diagnostics, data-bus networking, engine electrical, driver assistance, climate, and brake and suspension systems</li>
+        </ul>
+      </div>
+
+      <div class="job">
+        <div class="jobhead"><h3>Advanced Technician / Service Writer</h3><span class="dates">Mar 2016 – Jun 2017</span></div>
+        <div class="org">KAUFFMAN TIRE · Gainesville, FL</div>
+        <ul class="log">
+          <li>Performed all-makes diagnostics and repair; wrote repair orders, managed shop flow, and translated technical findings into customer-approved repairs</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="module">
+    <div class="modhead"><h2>MODULE 03 · INSTALLED MODULES · APPLIED AI</h2><span class="status">ALL PASS</span></div>
+    <div class="modbody">
+      <div class="grid">
+        <div class="card">
+          <span class="tag">MCP Server · Node.js</span>
+          <h3>claude-bridge-kit</h3>
+          <p>Dispatches the headless Claude Code CLI from Cursor as nine callable tools: parallel best-of-N runs in isolated git worktrees, resumable sessions, read-only pre-flight verification, scheduled jobs, and a fail-open audit log.</p>
+          <span class="foot"><a href="https://github.com/chucks-lab/claude-bridge-kit">view source →</a></span>
+        </div>
+        <div class="card">
+          <span class="tag">Agentic Pipeline · Python</span>
+          <h3>content-studio (CAA)</h3>
+          <p>Course-authoring pipeline for technical training teams: six deterministic quality gates, a 21-archetype slide surface, Bloom-level learning-objective discipline, and .pptx/HTML output.</p>
+          <span class="priv">private · available on request</span>
+        </div>
+        <div class="card">
+          <span class="tag">VR Training · Unity / Sentis</span>
+          <h3>motor-starter-xr</h3>
+          <p>Agentically authored VR simulation for diagnosing a three-phase 480 V across-the-line motor starter, built with the official Unity MCP server and an on-device Sentis adaptive coach.</p>
+          <span class="priv">private · available on request</span>
+        </div>
+        <div class="card">
+          <span class="tag">Multi-Agent Lab · Governance</span>
+          <h3>PCM</h3>
+          <p>Charter-governed multi-agent lab: permission-tiered agents, deny-by-default security posture, a written harm floor, and multi-model design reviews.</p>
+          <span class="foot"><a href="https://github.com/chucks-lab/pcm-notes">read the charter →</a></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="module">
+    <div class="modhead"><h2>MODULE 04 · CALIBRATIONS · CERTS</h2><span class="status">VERIFIED</span></div>
+    <div class="modbody">
+      <dl class="kv">
+        <dt>TESLA</dt><dd><span class="pass">High Voltage Mastery</span> · <span class="pass">Chassis Mastery</span> · competency tracks in Advanced Electrical, HV Bus and Charging, Advanced Driver Assistance (DAS), Infotainment, and Diagnostic Fundamentals</dd>
+        <dt>ASE</dt><dd>Brakes · Steering and Suspension · EPA Section 609 (MVAC refrigerant handling)</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section class="module">
+    <div class="modhead"><h2>MODULE 05 · FIRMWARE · EDUCATION + SKILLS</h2><span class="status">UP TO DATE</span></div>
+    <div class="modbody">
+      <dl class="kv">
+        <dt>EDUCATION</dt><dd>Santa Fe College, Gainesville, FL — A.A.S., Automotive Service Management Technology · Major GPA 3.9</dd>
+        <dt>DIAGNOSTICS</dt><dd>Tesla Toolbox 3, Picoscope, CAN/data-bus analysis, brand-specific and generic scan platforms</dd>
+        <dt>AI + SOFTWARE</dt><dd>Claude Code, MCP, Cursor, LangGraph, Python (FastAPI, pydantic, python-pptx), Node.js, Unity/C# (Sentis), Swift/SwiftUI, Azure, GitHub Actions (OIDC)</dd>
+        <dt>PROTOTYPING</dt><dd>Autodesk and Dassault Systèmes CAD, 3D-printed prototypes, hand-built electrical training aids, Arduino CAN bus simulators</dd>
+      </dl>
+    </div>
+  </section>
+
+  <div class="dtc">
+    <b>DTC U0420 · STORED</b> — Boring resume detected upstream. Corrective action: replaced with this page.
+    Verified repair; fault has not returned. <b>DTC P1337 · PENDING</b> — Candidate not yet hired. See freeze frame above.
+  </div>
+
+  <footer>
+    <p>Scan complete. No further diagnostics required.</p>
+    <p><span class="prompt">$</span> schedule_service --with <a href="mailto:djlaneauto@icloud.com">djlaneauto@icloud.com</a></p>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  var boot = document.getElementById("boot");
+  var log = document.getElementById("bootlog");
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduced) { boot.remove(); return; }
+
+  var lines = [
+    { t: "TOOLBOX // CANDIDATE DIAGNOSTICS v5.0", c: "dim" },
+    { t: "> connecting to candidate ......... OK", c: "" },
+    { t: "> VIN ............................. DYLAN-LANE-ATX", c: "" },
+    { t: "> high-voltage isolation check .... PASS", c: "" },
+    { t: "> running full-system scan ........ 0 FAULTS FOUND", c: "amber" },
+    { t: "> loading freeze frame data ....... ", c: "" },
+  ];
+  var li = 0, ci = 0, els = [];
+  lines.forEach(function () {
+    var d = document.createElement("div");
+    d.className = "line";
+    log.appendChild(d);
+    els.push(d);
+  });
+
+  var timer = setInterval(function () {
+    if (li >= lines.length) { clearInterval(timer); return end(600); }
+    var line = lines[li];
+    ci += 3;
+    els[li].textContent = line.t.slice(0, ci);
+    if (line.c) els[li].classList.add(line.c);
+    if (ci >= line.t.length) { li++; ci = 0; }
+  }, 18);
+
+  function end(delay) {
+    setTimeout(function () {
+      boot.classList.add("done");
+      setTimeout(function () { boot.remove(); }, 600);
+    }, delay);
+  }
+  boot.addEventListener("click", function () { clearInterval(timer); end(0); });
+  document.addEventListener("keydown", function () { clearInterval(timer); end(0); }, { once: true });
+  setTimeout(function () { clearInterval(timer); end(0); }, 4000); // fail-safe: never block the page
+
+})();
+
+/* ---------- binary waveform: NRZ trace of the candidate's name ---------- */
+(function () {
+  var MSG = "DYLAN LANE";
+  var svg = document.getElementById("binwave");
+  if (!svg) return;
+
+  var bits = MSG.split("").map(function (c) {
+    return c.charCodeAt(0).toString(2).padStart(8, "0");
+  }).join("");
+
+  var BW = 12, HI = 6, LO = 28; // px per bit, high rail, low rail
+  var w = bits.length * BW;
+  var level = bits[0] === "1" ? HI : LO;
+  var d = "M0 " + level;
+  for (var i = 0; i < bits.length; i++) {
+    var target = bits[i] === "1" ? HI : LO;
+    var x = i * BW;
+    if (target !== level) { d += " L" + x + " " + level + " L" + x + " " + target; level = target; }
+    d += " L" + (x + BW) + " " + target;
+  }
+  svg.setAttribute("viewBox", "0 0 " + w + " 34");
+  svg.querySelector("path").setAttribute("d", d);
+
+  // click the label and it confesses
+  var decode = document.querySelector(".wavelabel .decode");
+  if (decode) {
+    decode.title = bits.replace(/(.{8})/g, "$1 ").trim();
+    decode.addEventListener("click", function () {
+      decode.textContent = "→ \"" + MSG + "\"";
+      decode.classList.add("solved");
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
