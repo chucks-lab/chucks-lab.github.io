@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dylan Lane · Candidate Diagnostics</title>
-<meta name="description" content="Dylan Lane — Master Automotive Technician (EV and ICE), Technical Trainer, Applied-AI Builder. Full-system scan: 0 faults found.">
+<title>Dylan Lane · Technical Trainer & Applied-AI Builder</title>
+<meta name="description" content="Dylan Lane — Technical trainer and applied-AI builder. Build with Claude, teach teams to own it, hand off what keeps running.">
 <style>
   :root {
     --bg: #0a0e12;
@@ -184,17 +184,16 @@
 
   <header class="mast">
     <div class="toolbar">
-      <span>TOOLBOX // CANDIDATE DIAGNOSTICS v5.0</span>
-      <span><span class="dot">●</span> CONNECTED · VIN DYLAN-LANE-ATX</span>
+      <span>PORTFOLIO // DYLAN LANE</span>
+      <span><span class="dot">●</span> AUSTIN, TX · BUILD · TEACH · HAND OFF</span>
     </div>
     <h1>DYLAN <span class="accent">LANE</span><span class="cursor"></span></h1>
+    <p class="tagline" style="margin: 12px 0 4px;">Technical trainer · Applied-AI builder · Open to workforce development &amp; education</p>
     <div class="pills">
-      <span class="pill hv">⚡ MASTER TECHNICIAN · EV + ICE</span>
+      <span class="pill hv">EV + ICE · FULL STACK</span>
       <span class="pill">TECHNICAL TRAINER</span>
       <span class="pill">APPLIED-AI BUILDER</span>
-      <span class="pill">PROBLEM SOLVER</span>
-      <span class="pill">LEADER</span>
-      <span class="pill">INNOVATOR</span>
+      <span class="pill">CLAUDE / MCP</span>
       <span class="pill">AUSTIN, TX</span>
     </div>
     <div class="contact">
@@ -218,18 +217,14 @@
       <title>NRZ trace · 8-bit ASCII · decodes to: DYLAN LANE</title>
       <path d="M0 28 L60 28 L60 6 L120 6 L120 28 L200 28 L200 6 L230 6 L230 28 L330 28 L330 6 L390 6 L390 28 L470 28 L470 6 L500 6 L500 28 L600 28 L600 6 L660 6 L660 28 L740 28 L740 6 L770 6 L770 28 L900 28"/>
     </svg>
-    <div class="wavelabel">CH1 · 5 V/div · NRZ · 8-bit ASCII · <span class="decode">decode me</span></div>
+    <div class="wavelabel">SIGNAL TRACE · DYLAN LANE</div>
   </div>
 
   <section class="module">
     <div class="modhead"><h2>MODULE 01 · SYSTEM ID</h2><span class="status">READINESS: COMPLETE</span></div>
     <div class="modbody summary">
-      Master automotive technician (EV and ICE) and technical trainer with a decade in vehicle diagnostics,
-      high-voltage systems, and skilled-trades pedagogy. Tesla alumni on <span class="hl">both sides of the business</span>:
-      field service and vehicle manufacturing. Builds applied AI that turns subject-matter expertise into working
-      leverage: MCP servers, Claude Code workflows, and agentic authoring pipelines that produce decks, docs,
-      VR simulations, and diagnostic tools training teams actually use.
-      Diagnostic mindset throughout: <span class="hl">reproduce, isolate, verify</span>.
+      <strong>Core:</strong> Master automotive technician and technical trainer with 10+ years across the full EV and ICE stack—diagnostics, repair, high-voltage, drivability, and data-bus work. Tesla veteran in field service and manufacturing; trains on power transmission and has working knowledge of factory automation.<br><br>
+      <strong>Builder:</strong> Applied-AI practitioner who ships training systems, VR sims, and agent tooling (Claude Code, MCP, Python) that teams adopt—not side projects. Same discipline in both lanes: <span class="hl">reproduce, isolate, verify</span>, then make it teachable or shippable.
     </div>
   </section>
 
@@ -241,10 +236,10 @@
         <div class="jobhead"><h3>Technical Trainer, SME: Vehicle Diagnostics and Repair</h3><span class="dates">Nov 2024 – Jun 2026</span></div>
         <div class="org">TESLA · Vehicle Manufacturing · Austin, TX</div>
         <ul class="log">
+          <li>Designed certification exams and factory curricula for pre-production and pilot builds, then trained and certified technicians against them</li>
+          <li>Developed training material and training systems for the factory with frontier AI tools (Cursor, Claude Code, Grok), several adopted while still in early beta</li>
           <li>Trained factory vehicle technicians in diagnostics and repair after moving from Tesla's field-service organization to the manufacturing side of the business</li>
           <li>Trained industrial technicians on electrical power transmission and generation</li>
-          <li>Designed curricula and certification exams for Tesla factory technicians, including pre-production and pilot builds, then certified technicians against them</li>
-          <li>Developed training material and training systems for the factory with frontier AI tools (Cursor, Claude Code, Grok), several adopted while still in early beta</li>
         </ul>
       </div>
 
@@ -265,7 +260,7 @@
           <div class="org">Waco, TX</div>
           <ul class="log">
             <li>Interviewed and personally selected all candidates for the program</li>
-            <li>Trained, supervised, and certified START technician interns into Tesla service roles over 16-week cohorts at a community-college host campus (<a href="https://www.tesla.com/careers/tesla-start">tesla-start</a>)</li>
+            <li>Enabled 16-week START cohorts—trained, supervised, and handed off certified interns into Tesla service roles at a community-college host campus (<a href="https://www.tesla.com/careers/tesla-start">tesla-start</a>)</li>
             <li>Delivered instructor-led certification training across technician competencies and co-authored certification courses and exams within the Tesla service curricula</li>
             <li>Supported service and training centers across multiple states and contributed to factory, engineering, instructional-design, and field-service projects, including hands-on work with the first 20 Model Ys produced and delivered at Gigafactory Texas</li>
           </ul>
@@ -319,24 +314,28 @@
           <span class="tag">MCP Server · Node.js</span>
           <h3>claude-bridge-kit</h3>
           <p>Dispatches the headless Claude Code CLI from Cursor as nine callable tools: parallel best-of-N runs in isolated git worktrees, resumable sessions, read-only pre-flight verification, scheduled jobs, and a fail-open audit log.</p>
+          <p class="priv" style="color:var(--green);font-size:12px;">Impact: portable installer I use daily; other developers can clone and run on any machine.</p>
           <span class="foot"><a href="https://github.com/chucks-lab/claude-bridge-kit">view source →</a></span>
         </div>
         <div class="card">
           <span class="tag">Agentic Pipeline · Python</span>
           <h3>content-studio (CAA)</h3>
           <p>Course-authoring pipeline for technical training teams: six deterministic quality gates, a 21-archetype slide surface, Bloom-level learning-objective discipline, and .pptx/HTML output.</p>
+          <p class="priv" style="color:var(--green);font-size:12px;">Impact: factory training teams use it to produce certification-ready courseware.</p>
           <span class="priv">private · available on request</span>
         </div>
         <div class="card">
           <span class="tag">VR Training · Unity / Sentis</span>
           <h3>motor-starter-xr</h3>
           <p>Agentically authored VR simulation for diagnosing a three-phase 480 V across-the-line motor starter, built with the official Unity MCP server and an on-device Sentis adaptive coach.</p>
+          <p class="priv" style="color:var(--green);font-size:12px;">Impact: industrial technicians practice HV diagnostics without live equipment risk.</p>
           <span class="priv">private · available on request</span>
         </div>
         <div class="card">
           <span class="tag">Multi-Agent Lab · Governance</span>
           <h3>PCM</h3>
           <p>Charter-governed multi-agent lab: permission-tiered agents, deny-by-default security posture, a written harm floor, and multi-model design reviews.</p>
+          <p class="priv" style="color:var(--green);font-size:12px;">Impact: auditable governance history for responsible multi-agent deployment.</p>
           <span class="foot"><a href="https://github.com/chucks-lab/pcm-notes">read the charter →</a></span>
         </div>
       </div>
@@ -365,14 +364,9 @@
     </div>
   </section>
 
-  <div class="dtc">
-    <b>DTC U0420 · STORED</b> — Boring resume detected upstream. Corrective action: replaced with this page.
-    Verified repair; fault has not returned. <b>DTC P1337 · PENDING</b> — Candidate not yet hired. See freeze frame above.
-  </div>
-
   <footer>
-    <p>Scan complete. No further diagnostics required.</p>
-    <p><span class="prompt">$</span> schedule_service --with <a href="mailto:djlaneauto@icloud.com">djlaneauto@icloud.com</a></p>
+    <p>Technical trainer &amp; applied-AI builder · Austin, TX</p>
+    <p><a href="https://github.com/chucks-lab">GitHub</a> · <a href="https://www.linkedin.com/in/dylan-lane-2063391b9">LinkedIn</a> · <a href="mailto:djlaneauto@icloud.com">djlaneauto@icloud.com</a></p>
   </footer>
 
 </div>
@@ -385,12 +379,9 @@
   if (reduced) { boot.remove(); return; }
 
   var lines = [
-    { t: "TOOLBOX // CANDIDATE DIAGNOSTICS v5.0", c: "dim" },
-    { t: "> connecting to candidate ......... OK", c: "" },
-    { t: "> VIN ............................. DYLAN-LANE-ATX", c: "" },
-    { t: "> high-voltage isolation check .... PASS", c: "" },
-    { t: "> running full-system scan ........ 0 FAULTS FOUND", c: "amber" },
-    { t: "> loading freeze frame data ....... ", c: "" },
+    { t: "PORTFOLIO // DYLAN LANE", c: "dim" },
+    { t: "> loading profile ................. OK", c: "" },
+    { t: "> technical trainer · applied-AI .. READY", c: "amber" },
   ];
   var li = 0, ci = 0, els = [];
   lines.forEach(function () {
@@ -417,7 +408,7 @@
   }
   boot.addEventListener("click", function () { clearInterval(timer); end(0); });
   document.addEventListener("keydown", function () { clearInterval(timer); end(0); }, { once: true });
-  setTimeout(function () { clearInterval(timer); end(0); }, 4000); // fail-safe: never block the page
+  setTimeout(function () { clearInterval(timer); end(0); }, 1800); // fail-safe: never block the page
 
 })();
 
@@ -444,15 +435,6 @@
   svg.setAttribute("viewBox", "0 0 " + w + " 34");
   svg.querySelector("path").setAttribute("d", d);
 
-  // click the label and it confesses
-  var decode = document.querySelector(".wavelabel .decode");
-  if (decode) {
-    decode.title = bits.replace(/(.{8})/g, "$1 ").trim();
-    decode.addEventListener("click", function () {
-      decode.textContent = "→ \"" + MSG + "\"";
-      decode.classList.add("solved");
-    });
-  }
 })();
 </script>
 
